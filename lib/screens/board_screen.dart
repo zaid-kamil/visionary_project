@@ -64,6 +64,7 @@ class BoardScreenState extends ConsumerState<BoardScreen> {
   Widget build(BuildContext context) {
     // Watches the visionItemsProvider for changes
     final visionItemsAsyncValue = ref.watch(visionItemsProvider);
+
     // Reads the visionItemsNotifierProvider to get the notifier
     final visionItemsNotifier = ref.read(visionItemsNotifierProvider.notifier);
 
@@ -104,19 +105,37 @@ class BoardScreenState extends ConsumerState<BoardScreen> {
     }
 
     return Scaffold(
-      body: Row(
-        children: [
-          VisionDrawer(
-              color: Theme.of(context).colorScheme.primaryFixed,
-              signOut: () {
-                ref.read(authProvider.notifier).signOut();
-                Navigator.pushReplacementNamed(context, Constants.authScreen);
-              },
-              addItem: () => buildAddForm(context, visionItemsNotifier),
-              onReload: () => ref.invalidate(visionItemsProvider)),
-          visionGrid(),
-        ],
-      ),
+      body: Stack(children: [
+        // the background image
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/bg.jpg',
+            fit: BoxFit.contain,
+            repeat: ImageRepeat.repeat,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+        // row that contains the side bar and the grid of vision items
+        Row(
+          children: [
+            // a class that builds the side bar
+            VisionDrawer(
+                color: Theme.of(context)
+                    .colorScheme
+                    .secondaryContainer
+                    .withValues(alpha: .8),
+                signOut: () {
+                  ref.read(authProvider.notifier).signOut();
+                  Navigator.pushReplacementNamed(context, Constants.authScreen);
+                },
+                addItem: () => buildAddForm(context, visionItemsNotifier),
+                onReload: () => ref.invalidate(visionItemsProvider)),
+            // a function that returns a grid of vision items
+            visionGrid(),
+          ],
+        ),
+      ]),
     );
   }
 }
